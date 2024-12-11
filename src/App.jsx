@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import {
   useReactTable,
   getCoreRowModel,
@@ -12,7 +12,9 @@ const Table = () => {
     { id: 2, title: "Task 2", completed: true },
   ]);
 
-  const [filter, setFilter] = useState("All"); // State for the filter
+  const [filter, setFilter] = useState("All");
+  const [newTaskIndex, setNewTaskIndex] = useState(null); // Track the index of the newly added task
+  const taskRefs = useRef([]); // Create a ref to hold references to table rows
 
   useEffect(() => {
     async function getData() {
@@ -26,7 +28,8 @@ const Table = () => {
 
   const filteredData = useMemo(() => {
     if (filter === "All") return data;
-    if (filter === "To Do") return data.filter((row) => row.completed === false);
+    if (filter === "To Do")
+      return data.filter((row) => row.completed === false);
     if (filter === "Done") return data.filter((row) => row.completed === true);
     if (filter === "In Progress")
       return data.filter((row) => row.completed === "In Progress");
@@ -44,6 +47,7 @@ const Table = () => {
         header: "Title",
         cell: ({ getValue, row }) => (
           <input
+            className="form-control"
             value={getValue() || ""}
             onChange={(e) => updateData(row.index, "title", e.target.value)}
           />
@@ -56,7 +60,14 @@ const Table = () => {
           const value = getValue();
           return (
             <select
-              value={value === true ? "Done" : value === false ? "To Do" : "In Progress"}
+              className="form-select"
+              value={
+                value === true
+                  ? "Done"
+                  : value === false
+                  ? "To Do"
+                  : "In Progress"
+              }
               onChange={(e) => {
                 let newValue;
                 if (e.target.value === "Done") newValue = true;
@@ -76,7 +87,12 @@ const Table = () => {
         accessorKey: "actions",
         header: "Actions",
         cell: ({ row }) => (
-          <button onClick={() => deleteRow(row.index)}>Delete</button>
+          <button
+            className="btn btn-danger"
+            onClick={() => deleteRow(row.index)}
+          >
+            Delete
+          </button>
         ),
       },
     ],
@@ -107,65 +123,91 @@ const Table = () => {
     getCoreRowModel: getCoreRowModel(),
   });
 
+  const addTaskAndScroll = () => {
+    const newIndex = data.length;
+    setData([
+      ...data,
+      { id: newIndex + 1, title: "New Task", completed: false },
+    ]);
+    setNewTaskIndex(newIndex); // Set the index of the newly added task
+  };
+
+  // Scroll to the newly added task
+  useEffect(() => {
+    if (newTaskIndex !== null && taskRefs.current[newTaskIndex]) {
+      taskRefs.current[newTaskIndex].scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }
+  }, [newTaskIndex]);
+
   return (
-    <div>
-      <div>
-        <label htmlFor="statusFilter">Filter by Status: </label>
-        <select
-          id="statusFilter"
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
+    <div className="container my-4">
+      <div className="d-flex justify-content-between mb-3">
+        <div>
+          <label htmlFor="statusFilter">Filter by Status: </label>
+          <select
+            id="statusFilter"
+            className="form-select w-auto"
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+          >
+            <option value="All">All</option>
+            <option value="To Do">To Do</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Done">Done</option>
+          </select>
+        </div>
+        <button
+          className="btn btn-primary"
+          onClick={addTaskAndScroll} // Add task and trigger scroll
         >
-          <option value="All">All</option>
-          <option value="To Do">To Do</option>
-          <option value="In Progress">In Progress</option>
-          <option value="Done">Done</option>
-        </select>
+          Add Task
+        </button>
       </div>
-      <button
-        onClick={() =>
-          setData([...data, { id: data.length + 1, title: "New Task", completed: false }])
-        }
-      >
-        Add Task
-      </button>
-      <table border="1">
-        <thead>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <tr key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <th key={header.id}>
-                  {flexRender(
-                    header.column.columnDef.header,
-                    header.getContext()
-                  )}
-                </th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody>
-          {table.getRowModel().rows.map((row) => (
-            <tr key={row.id}>
-              {row.getVisibleCells().map((cell) => (
-                <td key={cell.id}>
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+
+      <div className="table-responsive">
+        <table className="table table-bordered table-striped">
+          <thead>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <tr key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <th key={header.id}>
+                    {flexRender(
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
+                  </th>
+                ))}
+              </tr>
+            ))}
+          </thead>
+          <tbody>
+            {table.getRowModel().rows.map((row, index) => (
+              <tr
+                ref={(el) => (taskRefs.current[index] = el)} // Assign ref to each row
+                key={row.id}
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <td key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
-
 
 function App() {
   return (
     <>
       <div>
-        <h1>App</h1>
+        <h1 className="text-center">Task Manager</h1>
         <Table />
       </div>
     </>
