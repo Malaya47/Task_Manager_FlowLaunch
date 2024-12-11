@@ -7,10 +7,7 @@ import {
 import axios from "axios";
 
 const Table = () => {
-  const [data, setData] = useState([
-    { id: 1, title: "Task 1", completed: false },
-    { id: 2, title: "Task 2", completed: true },
-  ]);
+  const [data, setData] = useState([]);
 
   const [filter, setFilter] = useState("All");
   const [newTaskIndex, setNewTaskIndex] = useState(null); // Track the index of the newly added task
