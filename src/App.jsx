@@ -13,8 +13,8 @@ const Table = () => {
 
   const [filter, setFilter] = useState("All");
   const [searchTitle, setSearchTitle] = useState("");
-  const [newTaskIndex, setNewTaskIndex] = useState(null); // Track the index of the newly added task
-  const taskRefs = useRef([]); // Create a ref to hold references to table rows
+  const [newTaskIndex, setNewTaskIndex] = useState(null);
+  const taskRefs = useRef([]);
 
   useEffect(() => {
     async function getData() {
@@ -127,9 +127,9 @@ const Table = () => {
   const deleteRow = (rowIndex) => {
     toast.error("Task deleted successfully!", {
       position: "bottom-left",
-      autoClose: 3000, // Adjust the time to keep it on screen longer if necessary
+      autoClose: 3000,
       hideProgressBar: false,
-      closeOnClick: true, // Enable closing on click
+      closeOnClick: true,
       pauseOnHover: true,
       draggable: true,
       theme: "dark",
@@ -146,9 +146,9 @@ const Table = () => {
   const addTaskAndScroll = () => {
     toast.success("Task added successfully!", {
       position: "bottom-left",
-      autoClose: 3000, // Adjust the time to keep it on screen longer if necessary
+      autoClose: 3000,
       hideProgressBar: false,
-      closeOnClick: true, // Enable closing on click
+      closeOnClick: true,
       pauseOnHover: true,
       draggable: true,
       theme: "dark",
@@ -158,7 +158,7 @@ const Table = () => {
       ...data,
       { id: newIndex + 1, title: "New Task", completed: false },
     ]);
-    setNewTaskIndex(newIndex); // Set the index of the newly added task
+    setNewTaskIndex(newIndex);
   };
 
   // Scroll to the newly added task
@@ -269,10 +269,7 @@ const Table = () => {
           </thead>
           <tbody>
             {table.getRowModel().rows.map((row, index) => (
-              <tr
-                ref={(el) => (taskRefs.current[index] = el)} // Assign ref to each row
-                key={row.id}
-              >
+              <tr ref={(el) => (taskRefs.current[index] = el)} key={row.id}>
                 {row.getVisibleCells().map((cell) => (
                   <td key={cell.id}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
