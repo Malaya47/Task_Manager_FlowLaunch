@@ -10,6 +10,7 @@ const Table = () => {
   const [data, setData] = useState([]);
 
   const [filter, setFilter] = useState("All");
+  const [searchTitle, setSearchTitle] = useState("");
   const [newTaskIndex, setNewTaskIndex] = useState(null); // Track the index of the newly added task
   const taskRefs = useRef([]); // Create a ref to hold references to table rows
 
@@ -24,14 +25,22 @@ const Table = () => {
   }, []);
 
   const filteredData = useMemo(() => {
-    if (filter === "All") return data;
-    if (filter === "To Do")
-      return data.filter((row) => row.completed === false);
-    if (filter === "Done") return data.filter((row) => row.completed === true);
-    if (filter === "In Progress")
-      return data.filter((row) => row.completed === "In Progress");
-    return data;
-  }, [data, filter]);
+    let filtered = data;
+  
+    if (filter !== "All") {
+      if (filter === "To Do") filtered = filtered.filter((row) => row.completed === false);
+      if (filter === "Done") filtered = filtered.filter((row) => row.completed === true);
+      if (filter === "In Progress") filtered = filtered.filter((row) => row.completed === "In Progress");
+    }
+  
+    if (searchTitle) {
+      filtered = filtered.filter((row) =>
+        row.title.toLowerCase().includes(searchTitle.toLowerCase())
+      );
+    }
+  
+    return filtered;
+  }, [data, filter, searchTitle]);
 
   const columns = useMemo(
     () => [
@@ -141,9 +150,11 @@ const Table = () => {
 
   return (
     <div className="container my-4">
-      <div className="d-flex justify-content-between align-items-start mb-4">
+      <div className="d-flex justify-content-between mb-4">
         <div>
-          <label htmlFor="statusFilter">Filter by Status: </label>
+          <label htmlFor="statusFilter" className="form-label">
+            Filter by Status:{" "}
+          </label>
           <select
             id="statusFilter"
             className="form-select w-auto"
@@ -156,8 +167,16 @@ const Table = () => {
             <option value="Done">Done</option>
           </select>
         </div>
+        <div className="align-self-center">
+          <input
+            onChange={(e) => setSearchTitle(e.target.value)}
+            type="search"
+            placeholder="Search by title"
+            className="form-control"
+          />
+        </div>
         <button
-          className="btn btn-primary"
+          className="btn btn-primary align-self-center"
           onClick={addTaskAndScroll} // Add task and trigger scroll
         >
           Add Task
