@@ -5,6 +5,8 @@ import {
   flexRender,
 } from "@tanstack/react-table";
 import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Table = () => {
   const [data, setData] = useState([]);
@@ -26,19 +28,22 @@ const Table = () => {
 
   const filteredData = useMemo(() => {
     let filtered = data;
-  
+
     if (filter !== "All") {
-      if (filter === "To Do") filtered = filtered.filter((row) => row.completed === false);
-      if (filter === "Done") filtered = filtered.filter((row) => row.completed === true);
-      if (filter === "In Progress") filtered = filtered.filter((row) => row.completed === "In Progress");
+      if (filter === "To Do")
+        filtered = filtered.filter((row) => row.completed === false);
+      if (filter === "Done")
+        filtered = filtered.filter((row) => row.completed === true);
+      if (filter === "In Progress")
+        filtered = filtered.filter((row) => row.completed === "In Progress");
     }
-  
+
     if (searchTitle) {
       filtered = filtered.filter((row) =>
         row.title.toLowerCase().includes(searchTitle.toLowerCase())
       );
     }
-  
+
     return filtered;
   }, [data, filter, searchTitle]);
 
@@ -120,6 +125,15 @@ const Table = () => {
   };
 
   const deleteRow = (rowIndex) => {
+    toast.error("Task deleted successfully!", {
+      position: "bottom-left",
+      autoClose: 3000, // Adjust the time to keep it on screen longer if necessary
+      hideProgressBar: false,
+      closeOnClick: true, // Enable closing on click
+      pauseOnHover: true,
+      draggable: true,
+      theme: "dark",
+    });
     setData((oldData) => oldData.filter((_, index) => index !== rowIndex));
   };
 
@@ -130,6 +144,15 @@ const Table = () => {
   });
 
   const addTaskAndScroll = () => {
+    toast.success("Task added successfully!", {
+      position: "bottom-left",
+      autoClose: 3000, // Adjust the time to keep it on screen longer if necessary
+      hideProgressBar: false,
+      closeOnClick: true, // Enable closing on click
+      pauseOnHover: true,
+      draggable: true,
+      theme: "dark",
+    });
     const newIndex = data.length;
     setData([
       ...data,
@@ -148,16 +171,28 @@ const Table = () => {
     }
   }, [newTaskIndex]);
 
+  const taskCounts = useMemo(() => {
+    const counts = {
+      all: data.length,
+      toDo: data.filter((task) => task.completed === false).length,
+      inProgress: data.filter((task) => task.completed === "In Progress")
+        .length,
+      done: data.filter((task) => task.completed === true).length,
+    };
+    return counts;
+  }, [data]);
+
   return (
     <div className="container my-4">
-      <div className="d-flex justify-content-between mb-4">
-        <div>
-          <label htmlFor="statusFilter" className="form-label">
-            Filter by Status:{" "}
+      <ToastContainer />
+      <div className="d-flex flex-column flex-md-row align-items-center gap-3 mb-4">
+        <div className="d-flex flex-column flex-md-row align-items-center gap-2">
+          <label htmlFor="statusFilter" className="form-label mb-0">
+            Filter by Status:
           </label>
           <select
             id="statusFilter"
-            className="form-select w-auto"
+            className="form-select"
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
           >
@@ -167,7 +202,7 @@ const Table = () => {
             <option value="Done">Done</option>
           </select>
         </div>
-        <div className="align-self-center">
+        <div className="flex-grow-1">
           <input
             onChange={(e) => setSearchTitle(e.target.value)}
             type="search"
@@ -175,12 +210,45 @@ const Table = () => {
             className="form-control"
           />
         </div>
-        <button
-          className="btn btn-primary align-self-center"
-          onClick={addTaskAndScroll} // Add task and trigger scroll
-        >
-          Add Task
-        </button>
+        <div>
+          <button
+            className="btn btn-primary w-100 w-md-auto"
+            onClick={addTaskAndScroll}
+          >
+            Add Task
+          </button>
+        </div>
+      </div>
+
+      {/* Task Counters */}
+      <div className="mb-3">
+        <h5 className="mb-3 text-center">Task Counters</h5>
+        <div className="row text-center gy-2">
+          <div className="col-6 col-md-3">
+            <div className="p-2 bg-light rounded shadow-sm">
+              <strong>Total Tasks:</strong>
+              <p className="m-0 fs-5">{taskCounts.all}</p>
+            </div>
+          </div>
+          <div className="col-6 col-md-3">
+            <div className="p-2 bg-primary text-white rounded shadow-sm">
+              <strong>To Do:</strong>
+              <p className="m-0 fs-5">{taskCounts.toDo}</p>
+            </div>
+          </div>
+          <div className="col-6 col-md-3">
+            <div className="p-2 bg-warning text-dark rounded shadow-sm">
+              <strong>In Progress:</strong>
+              <p className="m-0 fs-5">{taskCounts.inProgress}</p>
+            </div>
+          </div>
+          <div className="col-6 col-md-3">
+            <div className="p-2 bg-success text-white rounded shadow-sm">
+              <strong>Done:</strong>
+              <p className="m-0 fs-5">{taskCounts.done}</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="table-responsive">
