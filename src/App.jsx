@@ -141,7 +141,7 @@ const Table = () => {
 
   return (
     <div className="container my-4">
-      <div className="d-flex justify-content-between mb-3">
+      <div className="d-flex justify-content-between align-items-start mb-4">
         <div>
           <label htmlFor="statusFilter">Filter by Status: </label>
           <select
