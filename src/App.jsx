@@ -226,25 +226,25 @@ const Table = () => {
         <div className="row text-center gy-2">
           <div className="col-6 col-md-3">
             <div className="p-2 bg-light rounded shadow-sm">
-              <strong>Total Tasks:</strong>
+              <strong>Total Tasks</strong>
               <p className="m-0 fs-5">{taskCounts.all}</p>
             </div>
           </div>
           <div className="col-6 col-md-3">
-            <div className="p-2 bg-primary text-white rounded shadow-sm">
-              <strong>To Do:</strong>
+            <div className="p-2 bg-light rounded shadow-sm">
+              <strong>To Do</strong>
               <p className="m-0 fs-5">{taskCounts.toDo}</p>
             </div>
           </div>
           <div className="col-6 col-md-3">
-            <div className="p-2 bg-warning text-dark rounded shadow-sm">
-              <strong>In Progress:</strong>
+            <div className="p-2 bg-light text-dark rounded shadow-sm">
+              <strong>In Progress</strong>
               <p className="m-0 fs-5">{taskCounts.inProgress}</p>
             </div>
           </div>
           <div className="col-6 col-md-3">
-            <div className="p-2 bg-success text-white rounded shadow-sm">
-              <strong>Done:</strong>
+            <div className="p-2 bg-light rounded shadow-sm">
+              <strong>Done</strong>
               <p className="m-0 fs-5">{taskCounts.done}</p>
             </div>
           </div>
